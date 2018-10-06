@@ -66,15 +66,21 @@ def _get_data_from_db(query_text):
     results = _select_update_from_db(sql)
     return results
 
-def _output_csv(query_text):
+@app.route('/output_csv', methods=['GET', 'POST'])
+def _output_csv():
+    query_text = request.args.get('query_text')
     results = _get_data_from_db(query_text)
+    if results=='fetch_db_error':
+        print('Fetching database fails. Please check the log...')
+        return ''
 
     # write header to csv file
     import datetime
     import csv
 
     now = datetime.datetime.now()
-    file = open('yahoo_buy_search_result_' + now.strftime("%Y-%m-%d") + '.csv', 'w', newline='')
+    filename = 'yahoo_buy_search_result_' + now.strftime("%Y-%m-%d") + '.csv'
+    file = open('static/' + filename, 'w', newline='')
     csvCursor = csv.writer(file)
     csvHeader = ['category', 'item_title', 'item_price', 'item_info', 'item_url']
     csvCursor.writerow(csvHeader)
@@ -87,8 +93,16 @@ def _output_csv(query_text):
     file.close()
     # ___ Output to a CSV file
 
-def _output_excel(query_text):
+    from flask import send_from_directory
+    return send_from_directory('static', filename)
+
+@app.route('/output_excel', methods=['GET', 'POST'])
+def _output_excel():
+    query_text = request.args.get('query_text')
     results = _get_data_from_db(query_text)
+    if results=='fetch_db_error':
+        print('Fetching database fails. Please check the log...')
+        return ''
 
     # *** Output to a Excel file
     from openpyxl import Workbook
@@ -114,8 +128,13 @@ def _output_excel(query_text):
         ws['A' + str(ws._current_row)].font = ft
 
     import datetime
-    wb.save('yahoo_buy_search_result_' + datetime.datetime.now().strftime("%Y-%m-%d") + '.xlsx')
+    filename = 'yahoo_buy_search_result_' + datetime.datetime.now().strftime("%Y-%m-%d") + '.xlsx'
+    wb.save('static/' + filename)
     # ___ Output to a Excel file
+
+    from flask import send_from_directory
+    return send_from_directory('static', filename)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def yahoo_buy_search():

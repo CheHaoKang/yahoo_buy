@@ -91,6 +91,9 @@ class YahooBuy(object):
     def _get_item_description(self, desc_url):
         res_text = self._fetch_web_page(desc_url, proxy=True)
 
+        if 'Yahoo - 登入' in res_text:
+            return 'Private Product Information (login required)'
+
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(res_text, 'html.parser')
         desc_list = soup.select('li.desc.yui3-u-1')
@@ -123,8 +126,12 @@ class YahooBuy(object):
                 else:
                     res = requests.get(web_url, headers=header, timeout=10)
 
-                if 'yahooLogo' not in res.text and 'ylogo' not in res.text:
-                    print('Unvalid. Trying...')
+                if 'yahooLogo' not in res.text and 'ylogo' not in res.text and 'Yahoo - 登入' not in res.text:
+                    print('>>>>>>>>>> Unvalid. Trying >>>>>>>>>>>')
+                    print(now_proxy)
+                    print(web_url)
+                    print(res.text)
+                    print('__________ Unvalid. Trying ___________')
 
                     if proxy:
                         self._update_proxy_info(now_proxy, False, 0)

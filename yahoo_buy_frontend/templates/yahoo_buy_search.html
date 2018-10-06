@@ -17,6 +17,10 @@
     <p><!--{{ form.input_question.label }}--> {{ form.input_question(size="20") }} {{ form.submit }}</p>
 </form>
 <div id="result_div" style="width:50%;">
+    {% if form.input_question.data %}
+        <a href='/output_excel?query_text={{form.input_question.data}}' download="output_excel.xlsx">Download_Excel</a>
+        <a href='/output_csv?query_text={{form.input_question.data}}' download="output_csv.csv">Download_Csv</a>
+    {% endif %}
     <table border="1" width="auto">
         <tr>
             <th>category</th>
