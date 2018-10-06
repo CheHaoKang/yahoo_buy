@@ -21,7 +21,6 @@ class YahooBuy(object):
         # self._renew_categories('https://tw.buy.yahoo.com/')
         self._fetch_categories()
         # self._get_item_description('https://tw.buy.yahoo.com/gdsale/AISURE-For-iPad-2018%E7%89%88-9-7-7810929.html')
-        # self._getProxy()
 
     def _fetch_categories(self):
         results = self._select_update_from_db("SELECT category_name,sub_category_name FROM categories ORDER BY sno ASC")

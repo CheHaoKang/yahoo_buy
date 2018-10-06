@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yahoo購物中心 搜尋</title>
+
+     <style>
+    .cellpadding {
+       padding-left: 5px;
+       padding-right: 5px;
+    }
+    </style>
+</head>
+<body>
+<form method="POST" action="{{ url_for('yahoo_buy_search') }}" >
+    {{ form.hidden_tag() }}
+    <p><!--{{ form.input_question.label }}--> {{ form.input_question(size="20") }} {{ form.submit }}</p>
+</form>
+<div id="result_div" style="width:50%;">
+    <table border="1" width="auto">
+        <tr>
+            <th>category</th>
+            <th>item_title</th>
+            <th>item_price</th>
+            <th>item_info</th>
+        </tr>
+        {% for item_all in result_div %}
+            <tr>
+                <td>{{item_all[0]}}</td>
+                <td><a target="_blank" href="{{item_all[4]}}">{{item_all[1]}}</a></td>
+                <td>{{item_all[2]}}</td>
+                <td class="cellpadding">
+                    {% for one_desc in item_all[3].split(';;;') %}
+                        <li>{{one_desc}}</li>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+</body>
+</html>
