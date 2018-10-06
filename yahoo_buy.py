@@ -18,8 +18,8 @@ class YahooBuy(object):
 
     def __init__(self):
         self.timeout = 10
-        # self._renew_categories('https://tw.buy.yahoo.com/')
-        self._fetch_categories()
+
+        self._renew_categories('https://tw.buy.yahoo.com/')
         # self._get_item_description('https://tw.buy.yahoo.com/gdsale/AISURE-For-iPad-2018%E7%89%88-9-7-7810929.html')
 
     def _fetch_categories(self):
@@ -59,7 +59,7 @@ class YahooBuy(object):
                     print(item_price)
                     print(item_info)
 
-                    return_code = self._insert_into_db({'category':one_category[0], 'item_title':item_title, 'item_price':item_price, 'item_info':item_info, 'item_url':item_url}, 'item_information')
+                    return_code = self._insert_into_db({'category':one_category[0], 'item_title':item_title, 'item_price':item_price, 'item_info':item_info, 'item_url':item_url}, 'item_information', 'elapsed_time')
                     if return_code=='insert_db_error':
                         print('Insertion fails. Please see the log...')
 
@@ -265,7 +265,7 @@ class YahooBuy(object):
         else:
             return results
 
-    def _insert_into_db(self, insert_data, table_name):
+    def _insert_into_db(self, insert_data, table_name, duplicate_update_col=''):
         from time import sleep
         db_data = self._get_db_info()
 
@@ -291,9 +291,18 @@ class YahooBuy(object):
                                        db=db_data['to_db']['name'],
                                        charset=db_data['to_db']['charset'])
                 cur = conn.cursor()
-                insert = "INSERT IGNORE INTO " + table_name +" (" + ",".join(columns) + ") VALUES (" + ','.join(percent_s) + ")"
+                if not duplicate_update_col:
+                    insert = "INSERT IGNORE INTO " + table_name +" (" + ",".join(columns) + ") VALUES (" + ','.join(percent_s) + ")"
+                    cur.execute(insert, tuple(values))
+                else:
+                    import datetime
+                    datetime_now = datetime.datetime.now()
+                    insert = "INSERT INTO " + table_name + " (" + ",".join(columns) + ") VALUES (" + ','.join(percent_s) + ")" \
+                             + "ON DUPLICATE KEY UPDATE check_time=%s;"
+                    values.append(datetime_now)
+                    cur.execute(insert, tuple(values))
                 print(insert_data)
-                cur.execute(insert, tuple(values))
+
 
                 conn.commit()
                 break
@@ -317,3 +326,8 @@ class YahooBuy(object):
 
 if __name__ == "__main__":
     yahoo_buy_instance = YahooBuy()
+
+    from time import sleep
+    while True:
+        yahoo_buy_instance._fetch_categories()
+        sleep(30*60)  # sleep half hour
