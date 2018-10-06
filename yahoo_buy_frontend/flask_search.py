@@ -66,6 +66,57 @@ def _get_data_from_db(query_text):
     results = _select_update_from_db(sql)
     return results
 
+def _output_csv(query_text):
+    results = _get_data_from_db(query_text)
+
+    # write header to csv file
+    import datetime
+    import csv
+
+    now = datetime.datetime.now()
+    file = open('yahoo_buy_search_result_' + now.strftime("%Y-%m-%d") + '.csv', 'w', newline='')
+    csvCursor = csv.writer(file)
+    csvHeader = ['category', 'item_title', 'item_price', 'item_info', 'item_url']
+    csvCursor.writerow(csvHeader)
+    csvCursor.writerow(['-----', '-----', '-----', '-----', '-----'])
+
+    for one_result in results:
+        item_info_list = ['‧' + each_line for each_line in one_result[3].split(';;;')]
+        csvCursor.writerow([one_result[0], one_result[1], one_result[2], "\r\n".join(item_info_list), one_result[4]])
+
+    file.close()
+    # ___ Output to a CSV file
+
+def _output_excel(query_text):
+    results = _get_data_from_db(query_text)
+
+    # *** Output to a Excel file
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Color
+    wb = Workbook()
+
+    # grab the active worksheet
+    ws = wb.active
+    ws.title = 'Yahoo Buy Search Results'  # 設置worksheet的標題
+
+    # write header
+    excelHeader = ['category', 'item_title', 'item_price', 'item_info']
+    ws.append(excelHeader)
+    ws.append(['-----', '-----', '-----', '-----'])
+
+    ft = Font()
+    ft.underline = 'single'  # add single underline
+    ft.color = Color(rgb='000000FF')  # add blue color
+    for one_result in results:
+        item_info_list = ['‧' + each_line for each_line in one_result[3].split(';;;')]
+        ws.append([one_result[0], one_result[1], one_result[2], "\r\n".join(item_info_list)])
+        ws['A' + str(ws._current_row)] = '=HYPERLINK("{}", "{}")'.format(one_result[4], one_result[0])
+        ws['A' + str(ws._current_row)].font = ft
+
+    import datetime
+    wb.save('yahoo_buy_search_result_' + datetime.datetime.now().strftime("%Y-%m-%d") + '.xlsx')
+    # ___ Output to a Excel file
+
 @app.route('/', methods=['GET', 'POST'])
 def yahoo_buy_search():
     form = SearchForm()
@@ -76,6 +127,8 @@ def yahoo_buy_search():
     return render_template('yahoo_buy_search.html', form=form)
 
 if __name__ == '__main__':
+    # _output_csv('精選')
+    # _output_excel('精選')
     app.debug = True
     app.config['SECRET_KEY'] = 'your key values'
     app.run(host='0.0.0.0')
