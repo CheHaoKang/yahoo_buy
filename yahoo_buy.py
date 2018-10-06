@@ -59,7 +59,9 @@ class YahooBuy(object):
                     print(item_price)
                     print(item_info)
 
-                    self._insert_into_db({'category':one_category[0], 'item_title':item_title, 'item_price':item_price, 'item_info':item_info, 'item_url':item_url}, 'item_information')
+                    return_code = self._insert_into_db({'category':one_category[0], 'item_title':item_title, 'item_price':item_price, 'item_info':item_info, 'item_url':item_url}, 'item_information')
+                    if return_code=='insert_db_error':
+                        print('Insertion fails. Please see the log...')
 
                     print('-------------------')
                 except:
@@ -196,7 +198,9 @@ class YahooBuy(object):
                 for one_body in tag_body:
                     tag_body_list.append(one_body.text)
 
-                self._insert_into_db({'category_name':tag_head_text, 'sub_category_name':','.join(tag_body_list)}, 'categories')
+                return_code = self._insert_into_db({'category_name':tag_head_text, 'sub_category_name':','.join(tag_body_list)}, 'categories')
+                if return_code == 'insert_db_error':
+                    print('Insertion fails. Please see the log...')
             except:
                 import traceback
                 traceback.print_exc()
@@ -255,6 +259,7 @@ class YahooBuy(object):
             return results
 
     def _insert_into_db(self, insert_data, table_name):
+        from time import sleep
         db_data = self._get_db_info()
 
         columns = []
@@ -267,27 +272,37 @@ class YahooBuy(object):
 
         conn = None
         cur = None
-        try:
-            import pymysql
-            conn = pymysql.connect(host=db_data['to_db']['host'],
-                                   port=db_data['to_db']['port'],
-                                   user=db_data['to_db']['user'],
-                                   passwd=db_data['to_db']['pass'],
-                                   db=db_data['to_db']['name'],
-                                   charset=db_data['to_db']['charset'])
-            cur = conn.cursor()
-            insert = "INSERT IGNORE INTO " + table_name +" (" + ",".join(columns) + ") VALUES (" + ','.join(percent_s) + ")"
-            print(insert_data)
-            cur.execute(insert, tuple(values))
+        retry_limit = 5
+        count = 0
+        while count < retry_limit:
+            try:
+                import pymysql
+                conn = pymysql.connect(host=db_data['to_db']['host'],
+                                       port=db_data['to_db']['port'],
+                                       user=db_data['to_db']['user'],
+                                       passwd=db_data['to_db']['pass'],
+                                       db=db_data['to_db']['name'],
+                                       charset=db_data['to_db']['charset'])
+                cur = conn.cursor()
+                insert = "INSERT IGNORE INTO " + table_name +" (" + ",".join(columns) + ") VALUES (" + ','.join(percent_s) + ")"
+                print(insert_data)
+                cur.execute(insert, tuple(values))
 
-            cur.close()
-            conn.commit()
-            conn.close()
-        except:
-            import traceback
-            traceback.print_exc()
-            cur.close()
-            conn.close()
+                conn.commit()
+                break
+            except:
+                import traceback
+                traceback.print_exc()
+
+                print('Inserting data into database fails. Trying...')
+                count += 1
+                sleep(1)
+
+        cur.close()
+        conn.close()
+
+        if count >= retry_limit:
+            return 'insert_db_error'
 
     @staticmethod
     def dummy():
