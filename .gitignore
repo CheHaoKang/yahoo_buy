@@ -1,3 +1,5 @@
 frontend
 yahoo_buy.log
 yahoo_buy.txt
+*.csv
+*.xlsx
