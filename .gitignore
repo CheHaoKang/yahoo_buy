@@ -3,3 +3,4 @@ yahoo_buy.log
 yahoo_buy.txt
 *.csv
 *.xlsx
+yahoo_buy_frontend/__pycache__
