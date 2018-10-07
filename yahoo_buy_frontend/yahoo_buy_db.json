@@ -1,9 +1,9 @@
 {
   "to_db": {
-      "host": "192.168.2.55",
+      "host": "your_db_ip",
       "name": "yahoo_buy",
-      "user": "root",
-      "pass": "89787198",
+      "user": "your_db_user",
+      "pass": "your_db_password",
       "port": 3306,
       "charset": "utf8mb4"
   }
