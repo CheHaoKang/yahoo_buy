@@ -1,7 +1,7 @@
 #  引入flask_wtf
 from flask_wtf import FlaskForm
 #  各別引入需求欄位類別
-from wtforms import StringField, TextAreaField, SubmitField
+from wtforms import StringField, TextAreaField, SubmitField, RadioField
 from wtforms.fields.html5 import EmailField
 #  引入驗證
 from wtforms.validators import DataRequired, Email
@@ -9,6 +9,7 @@ from wtforms.validators import DataRequired, Email
 #  從繼承Form開始
 class SearchForm(FlaskForm):
     input_question = StringField('Question', validators=[DataRequired(message='Not Null')])
+    input_sort = RadioField('Sort', choices=[('category','search_category'),('all','search_all')], default='all')
     # input_category = StringField('Category', validators=[DataRequired(message='Not Null')])
     # input_sub_category = StringField('Sub-category', validators=[DataRequired(message='Not Null')])
     # input_answer = StringField('Answer', validators=[DataRequired(message='Not Null')])

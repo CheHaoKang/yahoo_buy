@@ -14,12 +14,14 @@
 <body>
 <form method="POST" action="{{ url_for('yahoo_buy_search') }}" >
     {{ form.hidden_tag() }}
-    <p><!--{{ form.input_question.label }}--> {{ form.input_question(size="20") }} {{ form.submit }}</p>
+    <p><!--{{ form.input_question.label }}--> {{ form.input_question(size="20") }} {{ form.input_sort }} {{ form.submit }}</p>
 </form>
+<div><font color="red">staying_period</font> means how long this product keeps on the billboard.</div>
+<br>
 <div id="result_div" style="width:50%;">
     {% if form.input_question.data %}
-        <a href='/output_excel?query_text={{form.input_question.data}}' download="output_excel.xlsx">Download_Excel</a>
-        <a href='/output_csv?query_text={{form.input_question.data}}' download="output_csv.csv">Download_Csv</a>
+        <a href='/output_excel?query_text={{form.input_question.data}}&input_sort={{form.input_sort.data}}' download="output_excel.xlsx">Download_Excel</a>
+        <a href='/output_csv?query_text={{form.input_question.data}}&input_sort={{form.input_sort.data}}' download="output_csv.csv">Download_Csv</a>
     {% endif %}
     <table border="1" width="auto">
         <tr>
@@ -27,6 +29,7 @@
             <th>item_title</th>
             <th>item_price</th>
             <th>item_info</th>
+            <th>staying_period</th>
         </tr>
         {% for item_all in result_div %}
             <tr>
@@ -38,6 +41,7 @@
                         <li>{{one_desc}}</li>
                     {% endfor %}
                 </td>
+                <td>{{item_all[5]}}</td>
             </tr>
         {% endfor %}
     </table>
