@@ -159,8 +159,6 @@ def yahoo_buy_search():
     return render_template('yahoo_buy_search.html', form=form)
 
 if __name__ == '__main__':
-    # _output_csv('精選')
-    # _output_excel('精選')
     app.debug = True
     app.config['SECRET_KEY'] = 'your key values'
     app.run(host='0.0.0.0')

@@ -1,24 +1,26 @@
 # -*- coding: UTF-8 -*-
 
-'''For the test purpose, unmark lines with '# for test' and mark '# formal'
-new-stcok-fetching policy
-1. run 'get_stockCodes.py'
-2. accumulate new stocks and put them into stockCodes of stockClassInstance.py
-3. run 'stockClassInstance.py retrieveStockData' with the parameter "" (python3 /home/pi/Python/pythonStockEvaluation/stockClassInstance.py retrieveStockData "")
-4. run 'stockClassInstance.py computeStockKD' with the parameter "" (python3 /home/pi/Python/pythonStockEvaluation/stockClassInstance.py computeStockKD "")
+'''
+This test is to create a crawler of Yahoo store (https://tw.buy.yahoo.com/). The requirements are below:
+Must:
+1. an efficient crawler to get product pricing and category information
+2. define and discover how to get the best selling products, explain possible limitations
+3. a query interface to operate on crawled data, could be command line tools
+4. able to export result in CSV and excel
+Optional:
+5. using Proxy to avoid blocking
+6. handling exception
 '''
 
 class YahooBuy(object):
-    """This class is for retrieving stock-related data
+    """This class is for finishing Yahoo Store test.
 
     Attributes:
         timeout: webpage-fetching timeout
-        threadAmount: thread number
     """
 
     def __init__(self):
         self.timeout = 10
-
         self._renew_categories('https://tw.buy.yahoo.com/')
         # self._get_item_description('https://tw.buy.yahoo.com/gdsale/AISURE-For-iPad-2018%E7%89%88-9-7-7810929.html')
 
@@ -99,7 +101,6 @@ class YahooBuy(object):
         desc_list = soup.select('li.desc.yui3-u-1')
         desc_return_list = []
         for one_desc in desc_list:
-            # print(one_desc.text)
             desc_return_list.append(one_desc.text)
 
         return ';;;'.join(desc_return_list)
@@ -244,8 +245,6 @@ class YahooBuy(object):
                     cur.execute(sql)
 
                 results = cur.fetchall()
-                # for row in results:
-                #     print(row)
 
                 conn.commit()
                 break
@@ -330,4 +329,4 @@ if __name__ == "__main__":
     from time import sleep
     while True:
         yahoo_buy_instance._fetch_categories()
-        sleep(30*60)  # sleep half hour
+        sleep(30*60)  # sleep half an hour
